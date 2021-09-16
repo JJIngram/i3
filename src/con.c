@@ -1672,6 +1672,7 @@ Rect con_border_style_rect(Con *con) {
 
     adjacent_t borders_to_hide = ADJ_NONE;
     int border_width = con->current_border_width;
+    int internal_border_width = config.internal_border_width;
     DLOG("The border width for con is set to: %d\n", con->current_border_width);
     Rect result;
     if (con->current_border_width < 0) {
@@ -1681,6 +1682,72 @@ Rect con_border_style_rect(Con *con) {
             border_width = config.default_border_width;
         }
     }
+    border_width = (border_width * 2) + internal_border_width;
+
+    DLOG("Effective border width is set to: %d\n", border_width);
+    /* Shortcut to avoid calling con_adjacent_borders() on dock containers. */
+    int border_style = con_border_style(con);
+    if (border_style == BS_NONE)
+        return (Rect){0, 0, 0, 0};
+    if (border_style == BS_NORMAL) {
+        result = (Rect){border_width, 0, -(2 * border_width), -(border_width)};
+    } else {
+        result = (Rect){border_width, border_width, -(2 * border_width), -(2 * border_width)};
+    }
+
+    /* If hide_edge_borders is set to no_gaps and it did not pass the no border check, show all borders */
+    if (config.hide_edge_borders == HEBM_SMART_NO_GAPS) {
+        borders_to_hide = con_adjacent_borders(con) & HEBM_NONE;
+    } else {
+        borders_to_hide = con_adjacent_borders(con) & config.hide_edge_borders;
+    }
+
+    if (borders_to_hide & ADJ_LEFT_SCREEN_EDGE) {
+        result.x -= border_width;
+        result.width += border_width;
+    }
+    if (borders_to_hide & ADJ_RIGHT_SCREEN_EDGE) {
+        result.width += border_width;
+    }
+    if (borders_to_hide & ADJ_UPPER_SCREEN_EDGE && (border_style != BS_NORMAL)) {
+        result.y -= border_width;
+        result.height += border_width;
+    }
+    if (borders_to_hide & ADJ_LOWER_SCREEN_EDGE) {
+        result.height += border_width;
+    }
+    return result;
+}
+
+/*
+ * Returns a "relative" Rect which contains the amount of pixels that need to
+ * be added to the original Rect to get the final position (obviously the
+ * amount of pixels for normal, 1pixel and borderless are different).
+ *
+ */
+Rect con_in_border_style_rect(Con *con) {
+    if ((config.smart_borders == SMART_BORDERS_ON && con_num_visible_children(con_get_workspace(con)) <= 1) ||
+        (config.smart_borders == SMART_BORDERS_NO_GAPS && !has_outer_gaps(calculate_effective_gaps(con))) ||
+        (config.hide_edge_borders == HEBM_SMART && con_num_visible_children(con_get_workspace(con)) <= 1) ||
+        (config.hide_edge_borders == HEBM_SMART_NO_GAPS && con_num_visible_children(con_get_workspace(con)) <= 1 && !has_outer_gaps(calculate_effective_gaps(con)))) {
+        if (!con_is_floating(con))
+            return (Rect){0, 0, 0, 0};
+    }
+
+    adjacent_t borders_to_hide = ADJ_NONE;
+    int border_width = con->current_border_width;
+    int internal_border_width = config.internal_border_width;
+    DLOG("The border width for con is set to: %d\n", con->current_border_width);
+    Rect result;
+    if (con->current_border_width < 0) {
+        if (con_is_floating(con)) {
+            border_width = config.default_floating_border_width;
+        } else {
+            border_width = config.default_border_width;
+        }
+    }
+    border_width = internal_border_width;
+
     DLOG("Effective border width is set to: %d\n", border_width);
     /* Shortcut to avoid calling con_adjacent_borders() on dock containers. */
     int border_style = con_border_style(con);

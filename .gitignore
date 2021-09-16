@@ -46,6 +46,10 @@ compile_commands.json
 /.clangd
 LAST_VERSION
 build
+clean/
+obj-x86_64-linux-gnu/
+debian/
+.vscode/
 
 # We recommend building in a subdirectory called build.
 # If you chose a different directory name,

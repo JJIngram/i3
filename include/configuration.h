@@ -111,6 +111,7 @@ struct Config {
     int container_stack_limit;
     int container_stack_limit_value;
     int default_border_width;
+    int internal_border_width;
     int default_floating_border_width;
 
     /** Default orientation for new containers */

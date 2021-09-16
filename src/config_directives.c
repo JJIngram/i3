@@ -449,6 +449,11 @@ CFGFUN(default_border, const char *windowtype, const char *border, const long wi
     }
 }
 
+CFGFUN(internal_border, const long width) {
+    int border_width = width;
+    config.internal_border_width = logical_px(border_width);
+}
+
 CFGFUN(hide_edge_borders, const char *borders) {
     if (strcmp(borders, "smart_no_gaps") == 0)
         config.hide_edge_borders = HEBM_SMART_NO_GAPS;

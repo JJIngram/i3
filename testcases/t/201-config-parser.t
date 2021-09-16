@@ -513,6 +513,7 @@ my $expected_all_tokens = "ERROR: CONFIG: Expected one of these tokens: <end>, '
         bar
         font
         mode
+        internal_border
         gaps
         smart_borders
         smart_gaps

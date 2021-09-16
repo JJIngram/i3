@@ -453,6 +453,58 @@ static size_t x_get_border_rectangles(Con *con, xcb_rectangle_t rectangles[4]) {
 }
 
 /*
+ * Get rectangles representing the border around the child window. Some borders
+ * are adjacent to the screen-edge and thus not returned. Return value is the
+ * number of rectangles.
+ *
+ */
+static size_t x_get_in_border_rectangles(Con *con, xcb_rectangle_t rectangles[4]) {
+    size_t count = 0;
+    int border_style = con_border_style(con);
+
+    if (border_style != BS_NONE && con_is_leaf(con)) {
+        adjacent_t borders_to_hide = con_adjacent_borders(con) & config.hide_edge_borders;
+        Rect br = con_in_border_style_rect(con);
+
+        if (!(borders_to_hide & ADJ_LEFT_SCREEN_EDGE)) {
+            rectangles[count++] = (xcb_rectangle_t){
+                .x = config.default_border_width,
+                .y = config.default_border_width,
+                .width = br.x,
+                .height = con->rect.height - (config.default_border_width * 2),
+            };
+        }
+        if (!(borders_to_hide & ADJ_RIGHT_SCREEN_EDGE)) {
+            rectangles[count++] = (xcb_rectangle_t){
+                .x = con->rect.width - (br.x + config.default_border_width),
+                .y = config.default_border_width,
+                .width = br.x,
+                .height = con->rect.height - (config.default_border_width * 2),
+            };
+        }
+        if (!(borders_to_hide & ADJ_LOWER_SCREEN_EDGE)) {
+            rectangles[count++] = (xcb_rectangle_t){
+                .x = config.default_border_width,
+                .y = con->rect.height - (config.default_border_width + br.y),
+                .width = con->rect.width - (config.default_border_width * 2),
+                .height = br.y,
+            };
+        }
+        /* pixel border have an additional line at the top */
+        if (border_style == BS_PIXEL && !(borders_to_hide & ADJ_UPPER_SCREEN_EDGE)) {
+            rectangles[count++] = (xcb_rectangle_t){
+                .x = config.default_border_width,
+                .y = config.default_border_width,
+                .width = con->rect.width - (config.default_border_width * 2),
+                .height = br.y,
+            };
+        }
+    }
+
+    return count;
+}
+
+/*
  * Draws the decoration of the given container onto its parent.
  *
  */
@@ -562,7 +614,7 @@ void x_draw_decoration(Con *con) {
         xcb_rectangle_t rectangles[4];
         size_t rectangles_count = x_get_border_rectangles(con, rectangles);
         for (size_t i = 0; i < rectangles_count; i++) {
-            draw_util_rectangle(&(con->frame_buffer), p->color->child_border,
+            draw_util_rectangle(&(con->frame_buffer), p->color->background,
                                 rectangles[i].x,
                                 rectangles[i].y,
                                 rectangles[i].width,
@@ -584,6 +636,16 @@ void x_draw_decoration(Con *con) {
                 draw_util_rectangle(&(con->frame_buffer), p->color->indicator,
                                     br.x, r->height + (br.height + br.y), r->width + br.width, -(br.height + br.y));
             }
+        }
+
+        xcb_rectangle_t in_rectangles[4];
+        size_t in_rectangles_count = x_get_in_border_rectangles(con, in_rectangles);
+        for (size_t i = 0; i < in_rectangles_count; i++) {
+            draw_util_rectangle(&(con->frame_buffer), p->color->child_border,
+                                in_rectangles[i].x,
+                                in_rectangles[i].y,
+                                in_rectangles[i].width,
+                                in_rectangles[i].height);
         }
     }
 

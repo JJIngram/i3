@@ -26,6 +26,7 @@ state INITIAL:
   'font'                                   -> FONT
   'mode'                                   -> MODENAME
   'gaps'                                   -> GAPS
+  'internal_border'                        -> INTERNAL_BORDER
   'smart_borders'                          -> SMART_BORDERS
   'smart_gaps'                             -> SMART_GAPS
   'floating_minimum_size'                  -> FLOATING_MINIMUM_SIZE_WIDTH
@@ -140,6 +141,11 @@ state DEFAULT_ORIENTATION:
 state WORKSPACE_LAYOUT:
   layout = 'default', 'stacking', 'stacked', 'tabbed'
       -> call cfg_workspace_layout($layout)
+
+# internal_border <px>
+state INTERNAL_BORDER:
+  pxwidth = number
+      -> call cfg_internal_border(&pxwidth)
 
 # <default_border|new_window> <normal|1pixel|none>
 # <default_floating_border|new_float> <normal|1pixel|none>

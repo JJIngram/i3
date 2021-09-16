@@ -419,6 +419,8 @@ Con *con_descend_direction(Con *con, direction_t direction);
  */
 Rect con_border_style_rect(Con *con);
 
+Rect con_in_border_style_rect(Con *con);
+
 /**
  * Returns adjacent borders of the window. We need this if hide_edge_borders is
  * enabled.
