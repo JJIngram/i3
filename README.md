@@ -3,27 +3,64 @@
 [![Forks](https://img.shields.io/github/forks/Airblader/i3.svg)](https://github.com/Airblader/i3/network)
 [![Stars](https://img.shields.io/github/stars/Airblader/i3.svg)](https://github.com/Airblader/i3/stargazers)
 
-# i3-gaps
+# i3-gaps-borders
 
-## What is i3-gaps?
+## What is i3-gaps-borders?
 
-i3-gaps is a fork of [i3wm](https://www.i3wm.org), a tiling window manager for X11. It is kept up to date with upstream, adding a few additional features such as gaps between windows (see below for a complete list).
+i3-gaps-borders is a fork of [i3-gaps](https://github.com/Airblader/i3), a tiling window manager for X11. It is kept up to date with upstream, adding a few additional features such as gaps between windows (see below for a complete list).
 
 ![i3](http://i.imgur.com/y8sZE6o.jpg)
 
-## How do I install i3-gaps?
+## How do I install i3-gaps-borders?
 
 Please refer to the [wiki](https://github.com/Airblader/i3/wiki/installation).
 
+To install on Mint after `ninja`:
+
+```
+dpkg-buildpackage -us -uc
+sudo dpkg -i i3-wm_{version}.deb
+```
+
 ## Where can I get help?
 
-For bug reports or feature requests regarding i3-gaps specifically, open an issue on [GitHub](https://www.github.com/Airblader/i3). If your issue is with core i3 functionality, please report it [upstream](https://www.github.com/i3/i3).
+For bug reports or feature requests regarding i3-gaps-borders specifically, open an issue on [GitHub](https://www.github.com/JJIngram/i3). If your issue is with i3-gaps, open an issue [upstream](https://www.github.com/Airblader/i3) .If your issue is with core i3 functionality, please report it [upstream](https://www.github.com/i3/i3).
 
 For support & all other kinds of questions, you can ask your question on the official [subreddit /r/i3wm](https://www.reddit.com/r/i3wm).
 
 # Features
 
 ## i3
+
+
+###  borders
+
+```
+# Set your colours as normal
+# Colours border around windows
+# class                 border    backgr.   text     indicator    child_border
+client.focused          $col1     $col2     $col3    $col4        $col5
+...
+...
+
+
+# Set a value for your border as normal - this now uses background colour, as seen above.
+default_border pixel 10
+
+# Set a width for your internal border - this uses child_border colour, as seen above.
+internal_border 2
+```
+
+The below very simply demonstrated how this feature works. Imagine the below is a slice of a window:
+
+```
+|   db  |   ib  |   db  |     program     |   db  |   ib  |   db  |
+| $col2 | $col5 | $col2 |     program     | $col2 | $col5 | $col2 | 
+```
+
+i3-gaps-borders  will draw the default border (db), followed by the internal border (ib), followed by the default border again.
+In the case of the config given above, the resulting border width in total will be `22`.
+
 
 ### gaps
 
